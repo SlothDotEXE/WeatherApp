@@ -3,7 +3,11 @@ Skyline Weather
 
 ![Skyline Weather UI screenshot](assets/WeatherApp.png)
 
-A modern, reactive weather web app with animated visuals (clear, clouds, drizzle, rain, snow, thunder, fog/haze). Built with plain HTML/CSS/JS — no build step.
+ A modern, reactive weather web app with animated visuals (clear, clouds, drizzle, rain, snow, thunder, fog/haze). Built with plain HTML/CSS/JS — no build step.
+
+ AI-Generated Notice
+ -------------------
+ This project was primarily generated with AI using Codex CLI, and then refined with manual edits.
 
 Features
 --------
