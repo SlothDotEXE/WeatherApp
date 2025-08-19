@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Skyline Weather</title>
+    <meta name="description" content="A modern, reactive weather app with animated visuals." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/styles.css" />
+  </head>
+  <body>
+    <div id="app">
+      <header class="app-header">
+        <div class="brand">
+          <span class="logo">☀️</span>
+          <h1>Skyline Weather</h1>
+        </div>
+        <div class="controls">
+          <form id="search-form" class="search">
+            <input id="city-input" type="text" placeholder="Search city..." aria-label="City" />
+            <button type="submit" title="Search">Search</button>
+          </form>
+          <button id="geo-btn" class="ghost" title="Use current location">📍</button>
+          <div class="divider"></div>
+          <label class="toggle" title="Units">
+            <input id="units-toggle" type="checkbox" />
+            <span>C° / F°</span>
+          </label>
+          <details class="api-details">
+            <summary>API Key</summary>
+            <input id="api-key" type="password" placeholder="OpenWeatherMap API key" />
+          </details>
+        </div>
+      </header>
+
+      <main class="content">
+        <section class="current glass" id="current">
+          <div class="current-left">
+            <div class="temp" id="current-temp">--</div>
+            <div class="desc" id="current-desc">Loading...</div>
+            <div class="meta" id="current-meta">Feels -- • Wind -- • Humidity --</div>
+          </div>
+          <div class="current-right">
+            <div class="icon" id="current-icon" aria-hidden="true">⛅</div>
+            <div class="place-time">
+              <div id="place">—</div>
+              <div id="time">—</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panels">
+          <div class="panel glass" id="hourly">
+            <h2>Next 12 Hours</h2>
+            <canvas id="hourly-chart" width="900" height="200" aria-label="Hourly temperature chart"></canvas>
+          </div>
+
+          <div class="panel glass" id="forecast">
+            <h2>7‑Day Forecast</h2>
+            <div id="forecast-list" class="forecast-list"></div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <canvas id="fx-canvas"></canvas>
+
+    <script type="module" src="assets/js/app.js"></script>
+  </body>
+  </html>
+

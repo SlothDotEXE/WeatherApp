@@ -1,0 +1,38 @@
+# OS/editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+.history/
+
+# Env/credentials
+.env
+.env.*
+
+# Logs and caches
+*.log
+npm-debug.log*
+yarn-error.log*
+.cache/
+.parcel-cache/
+
+# Builds/output (not used but safe to ignore)
+dist/
+build/
+out/
+coverage/
+tmp/
+/.venv/
+/venv/
+
+# Node (not used here, precautionary)
+node_modules/
+
+# Python cache
+__pycache__/
+
+# Local server PIDs or temp
+*.pid
+
+# Project notes not intended for deployment (keep in repo unless you prefer to ignore)
+# AGENTS.md
