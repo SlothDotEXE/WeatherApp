@@ -53,9 +53,9 @@ Recent Changes
 - Added precipitation probability (hourly POP) overlay to the chart.
 - Added UV index to current card when provided by API.
 - Animated forecast list items on new searches.
+ - Implemented city suggestions dropdown via OWM geocoding autocomplete.
 
 UI Enhancements (Ideas)
-- Add precipitation probability overlay to the hourly chart.
 - Animate card transitions when switching cities or units.
 - Add wind direction arrow and sunrise/sunset chips.
 - Introduce SVG icon set with themed color accents.

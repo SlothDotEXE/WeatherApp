@@ -10,6 +10,7 @@ Features
 - Hourly chart (next 12 hours) with temperature line and precipitation probability overlay
 - 7‑day forecast list with smooth item animations
 - Geolocation, city search, units toggle (metric/imperial), and OpenWeatherMap live data
+ - City suggestions dropdown via OpenWeatherMap geocoding
 
 Requirements
 ------------
@@ -56,6 +57,7 @@ Recent Additions
 - Precipitation probability (POP) overlay on the hourly chart
 - UV index on the current card (when available)
 - Animated forecast list items on new searches
+ - City autocomplete suggestions beneath the search bar
 
 Troubleshooting
 ---------------

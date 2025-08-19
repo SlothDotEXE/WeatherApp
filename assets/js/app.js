@@ -8,6 +8,7 @@ const els = {
   unitsToggle: document.getElementById('units-toggle'),
   apiDetails: document.getElementById('api-details'),
   apiKeyInput: document.getElementById('api-key'),
+  suggestions: document.getElementById('city-suggestions'),
   temp: document.getElementById('current-temp'),
   desc: document.getElementById('current-desc'),
   meta: document.getElementById('current-meta'),
@@ -190,7 +191,7 @@ function updateFXForConditionId(id) {
   fx.setCondition(c);
 }
 
-async function loadWeather({ city, coords } = {}) {
+async function loadWeather({ city, coords, place } = {}) {
   const units = state.units;
   const apiKey = state.apiKey?.trim();
   if (!apiKey) {
@@ -200,7 +201,7 @@ async function loadWeather({ city, coords } = {}) {
     return;
   }
   try {
-    const data = await getWeather({ city, coords, apiKey, units });
+    const data = await getWeather({ city, coords, apiKey, units, place });
     state.lastData = data;
     renderCurrent(data);
     drawHourlyChart(els.hourlyCanvas, data.hourly, units);
@@ -226,6 +227,7 @@ els.searchForm.addEventListener('submit', (e) => {
   }
   state.lastCity = q;
   localStorage.setItem('last_city', q);
+  hideSuggestions();
   loadWeather({ city: q });
 });
 
@@ -313,4 +315,72 @@ window.addEventListener('resize', () => {
   if (state.lastData) {
     drawHourlyChart(els.hourlyCanvas, state.lastData.hourly, state.units);
   }
+});
+
+// --- City Autocomplete (OWM Geocoding) ---
+let suggestAbort = null;
+const debounce = (fn, ms = 350) => {
+  let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
+};
+
+function hideSuggestions() {
+  if (!els.suggestions) return;
+  els.suggestions.innerHTML = '';
+  els.suggestions.hidden = true;
+}
+
+function showSuggestions(items) {
+  if (!els.suggestions) return;
+  els.suggestions.innerHTML = '';
+  items.forEach((it, idx) => {
+    const label = [it.name, it.state, it.country].filter(Boolean).join(', ');
+    const div = document.createElement('div');
+    div.className = 'suggestion-item';
+    div.setAttribute('role', 'option');
+    div.setAttribute('aria-selected', 'false');
+    div.innerHTML = `<span class="main">${label}</span>`;
+    div.addEventListener('click', () => {
+      els.cityInput.value = label;
+      state.lastCity = label;
+      localStorage.setItem('last_city', label);
+      hideSuggestions();
+      loadWeather({ coords: { lat: it.lat, lon: it.lon }, place: { name: it.name, state: it.state, country: it.country } });
+    });
+    els.suggestions.appendChild(div);
+  });
+  els.suggestions.hidden = items.length === 0;
+}
+
+async function fetchCitySuggestions(q) {
+  const apiKey = state.apiKey?.trim();
+  if (!apiKey) return [];
+  if (suggestAbort) try { suggestAbort.abort(); } catch (_) {}
+  suggestAbort = new AbortController();
+  const url = `https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(q)}&limit=5&appid=${apiKey}`;
+  const res = await fetch(url, { signal: suggestAbort.signal });
+  if (!res.ok) throw new Error(`${res.status}`);
+  const data = await res.json();
+  return Array.isArray(data) ? data : [];
+}
+
+const onInputChanged = debounce(async () => {
+  const q = (els.cityInput.value || '').trim();
+  if (!q || q.length < 2) { hideSuggestions(); return; }
+  try {
+    const results = await fetchCitySuggestions(q);
+    showSuggestions(results);
+  } catch (e) {
+    hideSuggestions();
+  }
+}, 300);
+
+els.cityInput.addEventListener('input', onInputChanged);
+els.cityInput.addEventListener('focus', () => {
+  const q = (els.cityInput.value || '').trim();
+  if (q.length >= 2 && els.suggestions && els.suggestions.children.length > 0) {
+    els.suggestions.hidden = false;
+  }
+});
+document.addEventListener('click', (e) => {
+  if (!els.searchForm.contains(e.target)) hideSuggestions();
 });

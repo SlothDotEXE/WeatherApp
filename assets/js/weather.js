@@ -159,7 +159,7 @@ function formatWeatherFromCurrentForecast(current, forecast, place, units) {
   };
 }
 
-async function getWeather({ city, coords, apiKey, units = 'metric' } = {}) {
+async function getWeather({ city, coords, apiKey, units = 'metric', place: providedPlace } = {}) {
   if (!apiKey || !apiKey.trim()) {
     throw new Error('OpenWeatherMap API key is required');
   }
@@ -168,7 +168,7 @@ async function getWeather({ city, coords, apiKey, units = 'metric' } = {}) {
     throw new Error('No location provided');
   }
 
-  let place = null;
+  let place = providedPlace || null;
   let lat, lon;
   if (coords?.lat && coords?.lon) {
     lat = coords.lat; lon = coords.lon;
