@@ -6,6 +6,7 @@ const els = {
   searchForm: document.getElementById('search-form'),
   geoBtn: document.getElementById('geo-btn'),
   unitsToggle: document.getElementById('units-toggle'),
+  apiDetails: document.getElementById('api-details'),
   apiKeyInput: document.getElementById('api-key'),
   temp: document.getElementById('current-temp'),
   desc: document.getElementById('current-desc'),
@@ -192,15 +193,23 @@ function updateFXForConditionId(id) {
 async function loadWeather({ city, coords } = {}) {
   const units = state.units;
   const apiKey = state.apiKey?.trim();
-  const data = await getWeather({ city, coords, apiKey, units });
-  state.lastData = data;
+  if (!apiKey) {
+    if (els.apiDetails) els.apiDetails.open = true;
+    try { els.apiKeyInput.focus(); } catch (_) {}
+    alert('Please enter your OpenWeatherMap API key in the header (API Key).');
+    return;
+  }
   try {
+    const data = await getWeather({ city, coords, apiKey, units });
+    state.lastData = data;
     renderCurrent(data);
     drawHourlyChart(els.hourlyCanvas, data.hourly, units);
     renderForecast(els.forecastList, data.daily, units);
     updateFXForConditionId(data.current.weather?.id || 800);
   } catch (e) {
-    console.error('Render error', e);
+    console.error('Weather load error', e);
+    const msg = (e && e.message) ? ` (${e.message})` : '';
+    alert('Failed to load weather. Check your API key and network.' + msg);
   }
 }
 
@@ -209,12 +218,24 @@ els.searchForm.addEventListener('submit', (e) => {
   e.preventDefault();
   const q = (els.cityInput.value || '').trim();
   if (!q) return;
+  if (!state.apiKey?.trim()) {
+    if (els.apiDetails) els.apiDetails.open = true;
+    try { els.apiKeyInput.focus(); } catch (_) {}
+    alert('Please enter your OpenWeatherMap API key in the header (API Key).');
+    return;
+  }
   state.lastCity = q;
   localStorage.setItem('last_city', q);
   loadWeather({ city: q });
 });
 
 els.geoBtn.addEventListener('click', () => {
+  if (!state.apiKey?.trim()) {
+    if (els.apiDetails) els.apiDetails.open = true;
+    try { els.apiKeyInput.focus(); } catch (_) {}
+    alert('Please enter your OpenWeatherMap API key in the header (API Key).');
+    return;
+  }
   if (!navigator.geolocation) {
     alert('Geolocation not supported');
     return;
@@ -238,7 +259,7 @@ els.unitsToggle.addEventListener('change', () => {
     if (apiKey) {
       loadWeather({ city });
     } else {
-      // client-side conversion for mock
+      // client-side conversion for existing data when no refetch available
       convertUnitsInPlace(state.lastData, state.units);
       renderCurrent(state.lastData);
       drawHourlyChart(els.hourlyCanvas, state.lastData.hourly, state.units);
@@ -268,6 +289,14 @@ function convertUnitsInPlace(data, units) {
 
 // Initial load sequence
 (function init() {
+  // Require API key before attempting to load any data
+  if (!state.apiKey?.trim()) {
+    els.desc.textContent = 'Enter API key to start';
+    els.meta.textContent = 'API key required (header → API Key)';
+    if (els.apiDetails) els.apiDetails.open = true;
+    try { els.apiKeyInput.focus(); } catch (_) {}
+    return;
+  }
   // attempt geolocation first; fallback to last city
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition((pos) => {

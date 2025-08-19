@@ -2,20 +2,19 @@ Skyline Weather — Agent Guide
 
 Overview
 - Goal: A modern, reactive weather webapp with animated visuals that respond to forecast (rain, snow, thunder, clouds, clear).
-- Stack: Static HTML/CSS/JS (no build step). Canvas-based animations. Optional live data via OpenWeatherMap; mock fallback included.
+- Stack: Static HTML/CSS/JS (no build step). Canvas-based animations. Live data via OpenWeatherMap; API key required.
 - Entry point: index.html
 
 Project Structure
 - index.html: App shell, header controls, sections, and the animation canvas overlay.
 - assets/css/styles.css: Glassmorphism UI, layout, gradients, responsive rules.
 - assets/js/app.js: UI state, event wiring, rendering logic, and charts.
-- assets/js/weather.js: Weather data access. Uses OWM if API key is present; falls back to mock JSON.
+- assets/js/weather.js: Weather data access via OWM (API key required).
 - assets/js/animations.js: Fullscreen canvas animation engine for condition-driven effects.
-- assets/mock/sample-weather.json: Local mock data compatible with the formatter in weather.js.
 
 How It Works
-1) On load, the app attempts geolocation; otherwise it uses the last searched city (default San Francisco).
-2) If an OpenWeatherMap API key is provided (header → API Key), the app will use OWM’s Geocoding + One Call v3.0 endpoints. If any fetch fails (or no key is set), it falls back to the mock JSON.
+1) On load, if an API key is set the app attempts geolocation; otherwise it waits for a key. The last searched city is used when geolocation is unavailable.
+2) With an OpenWeatherMap API key (header → API Key), the app uses OWM’s Geocoding + One Call v3.0 endpoints. On failure, errors are surfaced to the UI/console.
 3) The UI renders:
    - Current card: temp, description, feels-like, wind, humidity, time, place.
    - Hourly panel: next 12 hours line chart (canvas, no library).
@@ -30,8 +29,7 @@ How It Works
 
 Local Development
 - Serve statically to avoid CORS: e.g. `python3 -m http.server 5173` and open http://localhost:5173/
-- Optional: Add your OpenWeatherMap key in the header dropdown. Units toggle persists in localStorage.
-- Without a key, the app displays mock data and still animates conditions.
+- Add your OpenWeatherMap key in the header dropdown (required). Units toggle persists in localStorage.
 
 Data Sources (Live)
 - Geocoding: https://api.openweathermap.org/geo/1.0/direct?q={city}&limit=1&appid={key}
@@ -63,13 +61,13 @@ UI Enhancements (Ideas)
 - Introduce SVG icon set with themed color accents.
 
 Error Handling
-- Live fetches are wrapped; on failure, the module falls back to mock data and logs a warning.
+- Live fetches are wrapped; on failure, errors are logged and surfaced. There is no local fallback.
 - Basic in-UI failures are minimized by resilient render functions with defaults.
 
 Testing Checklist
-- Load without API key → mock data displays; chart renders; animations visible.
+- Load without API key → UI prompts to enter an API key; no fetch occurs.
 - Enter a city + API key → live data loads; background effects change if conditions differ.
-- Toggle units → values update; with API key we refetch; without, we convert locally.
+- Toggle units → values update; app refetches when possible or converts existing data locally.
 - Resize window → hourly chart resizes and redraws.
 
 Known Limitations
@@ -84,4 +82,4 @@ Roadmap / TODOs
 Agent Notes
 - Keep changes focused and minimal; do not introduce build tooling unless explicitly requested.
 - If adding features, update this file and the README succinctly.
-- Prefer progressive enhancement: ensure the app remains usable without live data.
+- The app requires an API key; do not reintroduce a local fallback.
